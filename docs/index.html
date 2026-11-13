@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>MiniMinds Dashboard</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b1f2a;--mu:#667;--ac:#6c4cff}
+@media(prefers-color-scheme:dark){:root{--bg:#12141c;--card:#1c2030;--tx:#eef;--mu:#9aa}}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--tx);padding:14px;max-width:640px;margin:auto}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.c{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px}
+.n{font-size:26px;font-weight:700;color:var(--ac)}.m{color:var(--mu);font-size:13px}
+.v{display:flex;gap:10px}.v img{width:70px;height:100px;object-fit:cover;border-radius:8px;background:#0003}
+a{color:var(--ac)}button{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 14px}
+</style></head><body>
+<h2>🧠 MiniMinds</h2><div class="g" id="top"></div><p class="m" id="upd"></p>
+<p><a id="run" target="_blank">▶ Make a video now</a> · <button onclick="load()">Refresh</button></p>
+<div id="list"></div>
+<script>
+const REPO="YOUR_GITHUB_USERNAME/miniminds";document.getElementById('run').href="https://github.com/"+REPO+"/actions/workflows/run.yml";
+const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function load(){try{const d=await (await fetch('stats.json?'+Date.now())).json(),M=d.media,s=k=>M.reduce((a,m)=>a+(m.insights?.[k]||0),0);
+top.innerHTML=[['Followers',d.account.followers_count],['Videos',d.account.media_count],['Views',s('views')],['Likes',M.reduce((a,m)=>a+m.like_count,0)],['Comments',M.reduce((a,m)=>a+m.comments_count,0)],['Shares',s('shares')]].map(x=>`<div class=c><div class=n>${x[1]??0}</div><div class=m>${x[0]}</div></div>`).join('');
+upd.textContent='Updated '+new Date(d.updated).toLocaleString();
+list.innerHTML=M.map(m=>`<div class=c><div class=v><img src="${esc(m.thumbnail_url||'')}"><div><b>${esc((m.caption||'').split('\n')[0].slice(0,80))}</b><div class=m>${new Date(m.timestamp).toLocaleDateString()}</div><div class=m>👁 ${m.insights?.views??'-'} · ❤ ${m.like_count} · 💬 ${m.comments_count} · 🔁 ${m.insights?.shares??'-'} · 🔖 ${m.insights?.saved??'-'}</div><a href="${esc(m.permalink)}" target=_blank>Open / reply on Instagram</a></div></div>${(m.comments||[]).map(c=>`<div class=m>@${esc(c.username)}: ${esc(c.text)}</div>`).join('')}</div>`).join('')}catch(e){list.innerHTML='<div class=c>No data yet. Run the workflow once.</div>'}}
+load()
+</script></body></html>

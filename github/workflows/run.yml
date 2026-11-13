@@ -1,0 +1,21 @@
+name: MiniMinds auto-post
+on:
+  schedule: [{cron: "30 3 * * *"}, {cron: "30 13 * * *"}]   # 2 videos/day (UTC)
+  workflow_dispatch:                                          # "Run workflow" button
+permissions: {contents: write}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install moviepy==1.0.3 edge-tts pillow requests feedparser
+      - run: python bot.py
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          PEXELS_KEY: ${{ secrets.PEXELS_KEY }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
